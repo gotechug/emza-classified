@@ -1,0 +1,989 @@
+<title>EmZa: Classified</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ── Tokens ──────────────────────────────────────── */
+:root {
+  --bg:      #0b0b1c;
+  --sf:      #13132a;
+  --sf2:     #1b1b36;
+  --bdr:     rgba(255,255,255,0.07);
+  --text:    #eeeef8;
+  --muted:   #5e5e90;
+  --gold:    #f2c14e;
+
+  --orange:  #c44a00;
+  --orange-l:#f06020;
+  --red:     #b52020;
+  --red-l:   #e03030;
+  --blue:    #144d8f;
+  --blue-l:  #1a7fd8;
+  --green:   #0f6630;
+  --green-l: #1eaa50;
+
+  --ff-d: 'Fredoka One', system-ui, sans-serif;
+  --ff-b: 'Nunito', system-ui, sans-serif;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; }
+body {
+  font-family: var(--ff-b);
+  background: var(--bg); color: var(--text);
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* ── Screens ─────────────────────────────────────── */
+.screen {
+  display: none; flex-direction: column; align-items: center;
+  min-height: 100dvh;
+  padding-left:  max(16px, env(safe-area-inset-left,  0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.screen.active { display: flex; }
+
+/* ── Welcome ─────────────────────────────────────── */
+#s-welcome {
+  justify-content: center; padding-block: 28px; gap: 0;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 28%, rgba(242,193,78,.04) 0%, transparent 70%),
+    repeating-linear-gradient(-45deg, transparent, transparent 4px,
+      rgba(255,255,255,.007) 4px, rgba(255,255,255,.007) 5px),
+    var(--bg);
+}
+
+.logo { text-align: center; margin-bottom: 20px; animation: fadeUp .6s ease both; }
+.logo-title {
+  font-family: var(--ff-d);
+  font-size: clamp(72px, 20vw, 110px);
+  line-height: .9; letter-spacing: -3px;
+  background: linear-gradient(140deg, var(--gold) 0%, var(--orange-l) 55%, var(--red-l) 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.logo-stamp {
+  display: inline-block; margin-top: 8px; padding: 5px 16px;
+  border: 3px solid var(--red-l); border-radius: 4px;
+  font-family: var(--ff-d); font-size: clamp(11px, 3.5vw, 17px);
+  letter-spacing: 7px; color: var(--red-l);
+  transform: rotate(-2deg); opacity: .85;
+}
+.welcome-sub {
+  text-align: center; font-size: 15px; font-style: italic; font-weight: 600;
+  color: var(--muted); margin-bottom: 28px; line-height: 1.6;
+  animation: fadeUp .6s ease .08s both;
+}
+
+.setup {
+  background: var(--sf); border: 1px solid var(--bdr); border-radius: 24px;
+  padding: 24px 20px; width: 100%; max-width: 380px;
+  animation: fadeUp .6s ease .16s both;
+}
+.setup h3 {
+  font-family: var(--ff-d); font-size: 19px; color: var(--gold);
+  text-align: center; margin-bottom: 18px;
+}
+.setup-divider {
+  height: 1px; background: var(--bdr); margin: 14px 0 16px;
+}
+.setup-section {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 2.5px; color: var(--muted); margin-bottom: 12px;
+  display: block; text-align: center;
+}
+
+.field { margin-bottom: 12px; }
+.field label {
+  display: block; font-size: 10px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 2.5px;
+  color: var(--muted); margin-bottom: 5px;
+}
+.field input {
+  width: 100%; background: var(--sf2); border: 2px solid var(--bdr);
+  border-radius: 14px; padding: 12px 16px; color: var(--text);
+  font-family: var(--ff-b); font-size: 17px; font-weight: 700;
+  outline: none; transition: border-color .2s;
+}
+.field input::placeholder { color: var(--muted); font-weight: 400; }
+.field input:focus { border-color: var(--gold); }
+
+/* Option button groups */
+.opts { display: flex; gap: 8px; }
+.opt {
+  flex: 1; padding: 10px 6px;
+  background: var(--sf2); border: 2px solid var(--bdr);
+  border-radius: 12px; color: var(--muted);
+  font-family: var(--ff-b); font-size: 14px; font-weight: 800;
+  cursor: pointer; transition: border-color .18s, color .18s;
+  -webkit-appearance: none;
+}
+.opt.on { border-color: var(--gold); color: var(--gold); }
+.opt:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+/* Buttons */
+.btn {
+  width: 100%; padding: 15px; border: none; border-radius: 50px; cursor: pointer;
+  font-family: var(--ff-d); font-size: 20px;
+  transition: transform .12s, box-shadow .12s;
+}
+.btn:hover { transform: translateY(-2px); }
+.btn:active { transform: scale(.97) translateY(0); }
+.btn:disabled { opacity: .45; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+.btn-start {
+  background: linear-gradient(135deg, var(--gold), var(--orange-l));
+  color: #1a0800; box-shadow: 0 6px 28px rgba(242,193,78,.28);
+  margin-top: 8px;
+}
+
+/* ── Shared bar ──────────────────────────────────── */
+.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px);
+  width: 100%;
+  background: rgba(11,11,28,.94);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--bdr);
+  padding: 10px max(18px, env(safe-area-inset-left,0px));
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 50; flex-shrink: 0; gap: 8px;
+}
+.bar-logo {
+  font-family: var(--ff-d); font-size: 19px; flex-shrink: 0;
+  background: linear-gradient(90deg, var(--gold), var(--orange-l));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.bar-pills { display: flex; gap: 7px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.pill {
+  background: var(--sf2); border-radius: 20px;
+  padding: 4px 10px; font-size: 11px; font-weight: 800;
+  display: flex; align-items: center; gap: 3px; white-space: nowrap;
+}
+.pill-val { color: var(--gold); font-variant-numeric: tabular-nums; }
+.pill-sep { color: var(--muted); margin: 0 1px; }
+
+/* ── Game screen ─────────────────────────────────── */
+#s-game { padding-bottom: 20px; overflow-y: auto; }
+.game-body {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding-block: 16px; gap: 12px; width: 100%; max-width: 420px;
+}
+
+.turn-card {
+  background: var(--sf); border: 1px solid var(--bdr);
+  border-radius: 18px; padding: 12px 20px; text-align: center; width: 100%;
+}
+.turn-eyebrow {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 3px; color: var(--muted); margin-bottom: 2px;
+}
+.turn-name { font-family: var(--ff-d); font-size: 24px; color: var(--gold); }
+.turn-verb { font-size: 13px; font-weight: 600; color: var(--text); margin-top: 1px; }
+
+.wheel-zone { display: flex; flex-direction: column; align-items: center; }
+.ptr {
+  width: 0; height: 0;
+  border-left: 11px solid transparent; border-right: 11px solid transparent;
+  border-top: 20px solid var(--gold);
+  filter: drop-shadow(0 0 8px rgba(242,193,78,.7));
+  margin-bottom: -2px; position: relative; z-index: 2;
+}
+#wc {
+  display: block; border-radius: 50%; cursor: pointer;
+  box-shadow: 0 0 0 4px rgba(255,255,255,.04), 0 16px 60px rgba(0,0,0,.55);
+  transition: box-shadow .3s;
+}
+#wc.spinning {
+  cursor: default;
+  box-shadow: 0 0 0 4px rgba(242,193,78,.18), 0 16px 60px rgba(0,0,0,.6), 0 0 45px rgba(242,193,78,.08);
+}
+
+.btn-spin {
+  background: linear-gradient(135deg, var(--blue-l), var(--green-l));
+  color: #fff; box-shadow: 0 5px 24px rgba(26,127,216,.3);
+  max-width: 250px; font-size: 21px; margin-top: 2px;
+}
+
+.legend {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: center; width: 100%;
+}
+.leg-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 700; opacity: .72;
+}
+.leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+.btn-end {
+  background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 12px; font-weight: 700;
+  padding: 6px 12px; font-family: var(--ff-b);
+  transition: color .2s; margin-top: 2px;
+}
+.btn-end:hover { color: var(--text); }
+
+/* ── Timer ───────────────────────────────────────── */
+.timer-wrap {
+  position: relative; width: 62px; height: 62px; flex-shrink: 0;
+}
+.timer-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.t-bg  { fill: none; stroke: rgba(255,255,255,.08); stroke-width: 4; }
+.t-ring {
+  fill: none; stroke: var(--gold); stroke-width: 4;
+  stroke-linecap: round; stroke-dasharray: 163.36; stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1s linear, stroke .3s;
+}
+.timer-num {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--ff-d); font-size: 21px; color: var(--gold);
+  font-variant-numeric: tabular-nums; transition: color .3s;
+}
+
+/* ── Question screen ─────────────────────────────── */
+#s-question { padding-bottom: 24px; overflow-y: auto; }
+.q-body {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding-block: 16px; gap: 12px; width: 100%; max-width: 420px;
+}
+
+.q-top-row {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; gap: 10px;
+}
+.cat-badge {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 18px; border-radius: 50px;
+  font-family: var(--ff-d); font-size: 16px; color: #fff;
+  box-shadow: 0 4px 20px rgba(0,0,0,.35);
+  animation: popIn .45s cubic-bezier(.175,.885,.32,1.275) both;
+  flex-shrink: 0;
+}
+
+/* Flip card */
+.flip-wrap { width: 100%; perspective: 1100px; }
+.flip-card {
+  width: 100%; height: 255px; position: relative;
+  transform-style: preserve-3d; -webkit-transform-style: preserve-3d;
+  transition: transform .75s cubic-bezier(.175,.885,.32,1.275);
+  cursor: pointer;
+}
+.flip-card.revealed {
+  transform: rotateY(180deg); -webkit-transform: rotateY(180deg);
+  cursor: default;
+}
+.flip-f, .flip-b {
+  position: absolute; inset: 0; border-radius: 22px; overflow: hidden;
+  background: var(--sf); border: 1px solid var(--bdr);
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 24px 20px;
+}
+.flip-b {
+  transform: rotateY(180deg); -webkit-transform: rotateY(180deg);
+  align-items: flex-start; justify-content: space-between;
+}
+
+.cls-lines { display: flex; flex-direction: column; gap: 10px; width: 100%; margin-bottom: 20px; }
+.cls-bar   { height: 13px; background: var(--sf2); border-radius: 3px; opacity: .65; }
+.cls-bar:nth-child(1) { width: 88%; }
+.cls-bar:nth-child(2) { width: 65%; }
+.cls-bar:nth-child(3) { width: 77%; }
+
+.cls-stamp-area { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+.cls-stamp {
+  display: inline-block; font-family: var(--ff-d); font-size: 26px; color: var(--red-l);
+  border: 3px solid var(--red-l); padding: 5px 16px; border-radius: 5px;
+  letter-spacing: 5px; opacity: .85; transform: rotate(-3deg);
+}
+.cls-hint { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 1px; }
+
+.q-num {
+  font-size: 10px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 3px; color: var(--muted); flex-shrink: 0;
+}
+.q-txt {
+  font-family: var(--ff-d); font-size: clamp(17px, 4.4vw, 22px);
+  line-height: 1.45; color: var(--text);
+  flex: 1; display: flex; align-items: center;
+  padding-block: 8px; min-width: 0; text-wrap: balance;
+}
+.q-who {
+  background: rgba(255,255,255,.05); border-radius: 12px;
+  padding: 8px 12px; font-size: 13px; font-weight: 700;
+  width: 100%; display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+}
+.q-who-name { font-family: var(--ff-d); font-size: 17px; color: var(--gold); }
+
+.actions { display: flex; gap: 12px; width: 100%; max-width: 420px; }
+.btn-pass {
+  flex: 1; padding: 13px; background: var(--sf); border: 2px solid var(--bdr);
+  color: var(--text); font-size: 15px; border-radius: 50px; box-shadow: none;
+}
+.btn-done {
+  flex: 2; padding: 13px;
+  background: linear-gradient(135deg, var(--green), var(--green-l));
+  color: #fff; font-size: 18px;
+  box-shadow: 0 4px 20px rgba(30,170,80,.28); border-radius: 50px;
+}
+
+/* ── End screen ──────────────────────────────────── */
+#s-end { justify-content: center; padding-block: 40px; }
+.end-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 0; width: 100%; max-width: 380px;
+}
+.end-emoji { font-size: 64px; margin-bottom: 12px; }
+.end-title {
+  font-family: var(--ff-d); font-size: 36px; color: var(--gold); margin-bottom: 28px;
+}
+.scores-fin {
+  display: flex; align-items: center; gap: 16px;
+  width: 100%; justify-content: center; margin-bottom: 24px;
+}
+.score-fin {
+  background: var(--sf); border: 1px solid var(--bdr);
+  border-radius: 20px; padding: 20px 28px; text-align: center; flex: 1;
+}
+.sf-name { font-size: 14px; font-weight: 800; color: var(--muted); margin-bottom: 6px; }
+.sf-val  { font-family: var(--ff-d); font-size: 52px; color: var(--text); line-height: 1; }
+.sf-lbl  { font-size: 12px; font-weight: 700; color: var(--muted); margin-top: 4px; }
+.sf-vs   { font-family: var(--ff-d); font-size: 22px; color: var(--muted); flex-shrink: 0; }
+
+.end-msg {
+  font-family: var(--ff-d); font-size: 24px; color: var(--text);
+  text-align: center; margin-bottom: 28px; line-height: 1.3;
+}
+.end-qs {
+  font-size: 14px; font-weight: 600; color: var(--muted);
+  margin-bottom: 28px;
+}
+
+/* ── Animations ──────────────────────────────────── */
+@keyframes popIn  { from { transform: scale(.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes fadeUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-card { transition: none; }
+  .cat-badge, .logo, .welcome-sub, .setup { animation: none; }
+  .t-ring { transition: none; }
+}
+</style>
+
+<!-- ─── Welcome ──────────────────────────────────── -->
+<div id="s-welcome" class="screen active">
+  <div class="logo">
+    <div class="logo-title">EmZa</div>
+    <div class="logo-stamp">Classified</div>
+  </div>
+  <p class="welcome-sub">Real questions.<br>Real answers. Real connection.</p>
+
+  <div class="setup">
+    <h3>🎯 Who's Playing?</h3>
+
+    <div class="field">
+      <label>Your Name</label>
+      <input id="p1" type="text" placeholder="Em" maxlength="18" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Their Name</label>
+      <input id="p2" type="text" placeholder="Za" maxlength="18" autocomplete="off">
+    </div>
+
+    <div class="setup-divider"></div>
+    <span class="setup-section">Game Settings</span>
+
+    <div class="field">
+      <label>Timer per question</label>
+      <div class="opts" id="timerOpts">
+        <button class="opt on"  data-val="0"  onclick="pickOpt(this)">Off</button>
+        <button class="opt"     data-val="30" onclick="pickOpt(this)">30 s</button>
+        <button class="opt"     data-val="60" onclick="pickOpt(this)">60 s</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Passes each</label>
+      <div class="opts" id="passOpts">
+        <button class="opt on"  data-val="3"  onclick="pickOpt(this)">3</button>
+        <button class="opt"     data-val="5"  onclick="pickOpt(this)">5</button>
+        <button class="opt"     data-val="-1" onclick="pickOpt(this)">∞</button>
+      </div>
+    </div>
+
+    <button class="btn btn-start" onclick="startGame()">Let's Play 🎲</button>
+  </div>
+</div>
+
+<!-- ─── Game / Wheel ─────────────────────────────── -->
+<div id="s-game" class="screen">
+  <div class="bar">
+    <div class="bar-logo">EmZa</div>
+    <div class="bar-pills">
+      <div class="pill">
+        <span id="g-s1n">Em</span>&nbsp;<span id="g-s1v" class="pill-val">0</span>
+        <span class="pill-sep">·</span>
+        <span id="g-s2n">Za</span>&nbsp;<span id="g-s2v" class="pill-val">0</span>
+      </div>
+      <div class="pill">Q <span id="g-q" class="pill-val">0</span></div>
+      <div class="pill">🛡 <span id="g-p" class="pill-val">3</span></div>
+    </div>
+  </div>
+
+  <div class="game-body">
+    <div class="turn-card">
+      <div class="turn-eyebrow">It's their turn</div>
+      <div class="turn-name" id="g-name">—</div>
+      <div class="turn-verb">spin the wheel!</div>
+    </div>
+
+    <div class="wheel-zone">
+      <div class="ptr" aria-hidden="true"></div>
+      <canvas id="wc"></canvas>
+    </div>
+
+    <button class="btn btn-spin" id="spinBtn" onclick="spin()">🌀 SPIN!</button>
+    <div class="legend" id="legend"></div>
+    <button class="btn-end" onclick="endGame()">End Game</button>
+  </div>
+</div>
+
+<!-- ─── Question ─────────────────────────────────── -->
+<div id="s-question" class="screen">
+  <div class="bar">
+    <div class="bar-logo">EmZa</div>
+    <div class="bar-pills">
+      <div class="pill">
+        <span id="q-s1n">Em</span>&nbsp;<span id="q-s1v" class="pill-val">0</span>
+        <span class="pill-sep">·</span>
+        <span id="q-s2n">Za</span>&nbsp;<span id="q-s2v" class="pill-val">0</span>
+      </div>
+      <div class="pill">Q <span id="q-q" class="pill-val">0</span></div>
+      <div class="pill">🛡 <span id="q-p" class="pill-val">3</span></div>
+    </div>
+  </div>
+
+  <div class="q-body">
+    <div class="q-top-row">
+      <div class="cat-badge" id="catBadge">
+        <span id="catEmoji">🔥</span><span id="catName">Real Talk</span>
+      </div>
+      <div class="timer-wrap" id="timerWrap" hidden>
+        <svg class="timer-svg" viewBox="0 0 60 60" aria-hidden="true">
+          <circle class="t-bg"   cx="30" cy="30" r="26"/>
+          <circle class="t-ring" id="tRing" cx="30" cy="30" r="26"/>
+        </svg>
+        <div class="timer-num" id="timerNum">30</div>
+      </div>
+    </div>
+
+    <div class="flip-wrap">
+      <div class="flip-card" id="fc">
+        <div class="flip-f">
+          <div class="cls-lines">
+            <div class="cls-bar"></div>
+            <div class="cls-bar"></div>
+            <div class="cls-bar"></div>
+          </div>
+          <div class="cls-stamp-area">
+            <div class="cls-stamp">CLASSIFIED</div>
+            <div class="cls-hint">— tap to reveal —</div>
+          </div>
+        </div>
+        <div class="flip-b">
+          <div class="q-num" id="qNum">QUESTION 1</div>
+          <div class="q-txt" id="qTxt">…</div>
+          <div class="q-who">📣 <span class="q-who-name" id="qWho">—</span> answers this</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-pass" id="passBtn" onclick="passQ()">😅 Pass</button>
+      <button class="btn btn-done" onclick="doneQ()">Got it! ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── End ───────────────────────────────────────── -->
+<div id="s-end" class="screen">
+  <div class="end-wrap">
+    <div class="end-emoji" id="endEmoji">🏆</div>
+    <div class="end-title">Game Over!</div>
+    <div class="scores-fin">
+      <div class="score-fin">
+        <div class="sf-name" id="ef-p1">Em</div>
+        <div class="sf-val"  id="ef-s1">0</div>
+        <div class="sf-lbl">pts</div>
+      </div>
+      <div class="sf-vs">vs</div>
+      <div class="score-fin">
+        <div class="sf-name" id="ef-p2">Za</div>
+        <div class="sf-val"  id="ef-s2">0</div>
+        <div class="sf-lbl">pts</div>
+      </div>
+    </div>
+    <div class="end-msg" id="endMsg"></div>
+    <div class="end-qs" id="endQs"></div>
+    <button class="btn btn-start" onclick="show('s-welcome')">Play Again 🔄</button>
+  </div>
+</div>
+
+<script>
+/* ── Categories ──────────────────────────────────── */
+const CATS = [
+  { id:'realTalk',    label:'Real Talk',         emoji:'🔥', color:'#c44a00', light:'#f06020' },
+  { id:'loveConnect', label:'Love & Connection',  emoji:'❤️', color:'#b52020', light:'#e03030' },
+  { id:'theFuture',   label:'The Future',         emoji:'✨', color:'#144d8f', light:'#1a7fd8' },
+  { id:'deepDive',    label:'Deep Dive',           emoji:'💚', color:'#0f6630', light:'#1eaa50' },
+];
+
+/* ── Questions (35 per category) ─────────────────── */
+const Q = {
+  realTalk: [
+    "What are you looking for in a relationship? Be clear.",
+    "What are your dealbreakers? Know them.",
+    "Are you fully over your ex? Be real.",
+    "What does cheating mean to you?",
+    "Have you ever cheated or been cheated on?",
+    "What does loyalty mean to you?",
+    "What would make you walk away from a relationship?",
+    "Do your actions always match your words?",
+    "Why do you want this relationship? Be real.",
+    "What ended your last relationship?",
+    "Are you dating for fun or something serious?",
+    "What's your biggest red flag — in yourself?",
+    "What red flag do you tend to ignore in others?",
+    "Do you believe people can truly change?",
+    "Can you admit when you're wrong? Be honest.",
+    "How do you handle jealousy?",
+    "What are your boundaries?",
+    "How much privacy do you need in a relationship?",
+    "Do you believe in second chances?",
+    "What would you never compromise on?",
+    "How do you take feedback from a partner?",
+    "What is trust to you? Define it.",
+    "How important is honesty to you — really?",
+    "What are your non-negotiables?",
+    "What's something you'd be afraid to tell a partner?",
+    "Have you ever stayed in a relationship longer than you should have?",
+    "What would instantly and permanently break your trust?",
+    "Have you ever been the villain in a relationship story?",
+    "What's your biggest pattern in relationships — good or bad?",
+    "How do you act when you feel taken for granted?",
+    "What would make you question whether this relationship is right?",
+    "If you could change one thing about how you show up in relationships?",
+    "What's something you've never admitted to a partner but wish you could?",
+    "What does being truly honest feel like — does it ever scare you?",
+    "What's the most honest thing you can say about your past relationships?"
+  ],
+  loveConnect: [
+    "What does commitment mean to you?",
+    "How do you handle conflict in a relationship?",
+    "How do you communicate when you're hurt?",
+    "How do you show love?",
+    "How do you like to receive love?",
+    "What is respect in a relationship?",
+    "How important is physical affection to you?",
+    "How do you support a partner during hard times?",
+    "How do you like to celebrate wins — together?",
+    "How do you apologize? Do you own your part?",
+    "Can you disagree with someone you love respectfully?",
+    "What does quality time mean to you?",
+    "What makes you feel truly loved?",
+    "What makes you feel emotionally safe with someone?",
+    "What do you need most from a partner?",
+    "What kind of partner do you want to be?",
+    "What makes you feel most appreciated?",
+    "What do you do when you're upset or overwhelmed?",
+    "What does a happy relationship look like to you?",
+    "What's something you've always wanted to experience with a partner?",
+    "What do you wish we talked about more?",
+    "How do you handle disappointment in a relationship?",
+    "What does your ideal romantic evening look like?",
+    "How do you keep love alive over time?",
+    "What's one small thing a partner can do that means everything to you?",
+    "How do you know when you're truly in love with someone?",
+    "What does 'home' feel like to you in a relationship?",
+    "Do you believe in soulmates? Why or why not?",
+    "What's the most romantic thing someone has ever done for you?",
+    "How do you handle feeling emotionally disconnected from a partner?",
+    "What does intimacy beyond the physical look like for you?",
+    "What does it truly mean to be seen by someone you love?",
+    "What's your definition of a perfect day with your person?",
+    "How do you love when you're at your absolute worst?",
+    "What's one relationship habit you want to keep for life?"
+  ],
+  theFuture: [
+    "What are your biggest goals right now?",
+    "Do you want to get married one day?",
+    "Do you want children? Be honest.",
+    "How do you manage money?",
+    "How should responsibilities be shared in a relationship?",
+    "How important is family to you?",
+    "How important is faith or spirituality in your life?",
+    "What are your career goals?",
+    "How do you handle major life changes?",
+    "Where do you see yourself in five years?",
+    "What does a 'happy life' actually look like to you?",
+    "What's your biggest life goal?",
+    "What does success mean to you?",
+    "What does your ideal lifestyle look like?",
+    "If money wasn't an issue, what life would you want to build?",
+    "Where do you see us in five or ten years?",
+    "How do you make big decisions?",
+    "How important are friendships in your adult life?",
+    "How do you think social media should work in a relationship?",
+    "What does your ideal home look like?",
+    "How close are you to your family?",
+    "What kind of legacy do you want to leave?",
+    "How do you balance personal goals with relationship goals?",
+    "What's one thing you want to achieve in the next year?",
+    "If you could design your dream life — what does it look like?",
+    "What kind of traditions do you want to build as a couple?",
+    "How do you feel about long-distance if life required it?",
+    "What role does travel play in your ideal life?",
+    "What does work-life balance mean to you?",
+    "If we had to move to another country, where would you pick?",
+    "What's a financial goal you want to achieve in the next five years?",
+    "How important is owning a home to you?",
+    "What does your parenting philosophy look like, if you want kids?",
+    "How do you think we'd handle big disagreements about life decisions?",
+    "What does growing old with someone you love look like to you?"
+  ],
+  deepDive: [
+    "What are you still healing from that you don't talk about often?",
+    "What would your younger self think of who you are today?",
+    "What's one fear you have about our relationship or the future?",
+    "What's something you wish people understood about you without you explaining it?",
+    "What childhood experience shaped the way you love today?",
+    "What are your biggest insecurities?",
+    "What are you actively working on in yourself?",
+    "What mistake in a past relationship won't you repeat?",
+    "What are you most proud of in your life?",
+    "What's your biggest relationship fear?",
+    "What do people most misunderstand about you?",
+    "What do you wish someone would ask you more?",
+    "What are you afraid to admit — even to yourself?",
+    "What do you carry from your past that affects how you love?",
+    "What scares you most about being vulnerable?",
+    "What habit are you trying to build right now?",
+    "What's something about you that surprises most people?",
+    "Who inspires you most and why?",
+    "What did love — good or bad — teach you?",
+    "What does feeling truly known by someone feel like to you?",
+    "What do you think we could do better as a couple?",
+    "What's one thing you wish your partner always remembered about you?",
+    "What does emotional safety look like for you?",
+    "What are you still figuring out about yourself?",
+    "What version of yourself are you still working toward?",
+    "When did you last cry, and what was it about?",
+    "What's the bravest thing you've ever done for love?",
+    "What does loneliness feel like for you?",
+    "What's a belief about love you've had to unlearn?",
+    "What's the kindest thing anyone has ever said to you?",
+    "When do you feel most like yourself?",
+    "What would you change about how you were raised, if anything?",
+    "What does 'enough' look like for you — in life, in love?",
+    "What's something you've forgiven someone for but never told them?",
+    "What's the longest you've gone without being truly vulnerable with someone?"
+  ]
+};
+
+/* ── State ───────────────────────────────────────── */
+const G = {
+  p1:'Em', p2:'Za',
+  turn: 0,          // 0 = p1 spins / p2 answers; 1 = p2 spins / p1 answers
+  passes: 3,        // -1 = unlimited
+  passLimit: 3,
+  timerSecs: 0,
+  scores: [0, 0],   // [p1 score, p2 score]
+  total: 0,
+  pools: {}, used: {}
+};
+
+/* ── Helpers ─────────────────────────────────────── */
+function shuffle(a) {
+  a = [...a];
+  for (let i = a.length-1; i > 0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+function initPools() {
+  CATS.forEach(c => {
+    G.pools[c.id] = shuffle(Q[c.id].map((_,i)=>i));
+    G.used[c.id]  = [];
+  });
+}
+
+function nextQ(id) {
+  if (!G.pools[id].length) {
+    G.pools[id] = shuffle(G.used[id]);
+    G.used[id]  = [];
+  }
+  const i = G.pools[id].pop();
+  G.used[id].push(i);
+  return Q[id][i];
+}
+
+function spinner()  { return G.turn === 0 ? G.p1 : G.p2; }
+function answerer() { return G.turn === 0 ? G.p2 : G.p1; }
+function answererIdx() { return G.turn === 0 ? 1 : 0; }
+
+function pFmt(v) { return v === -1 ? '∞' : v; }
+
+function pickOpt(btn) {
+  btn.closest('.opts').querySelectorAll('.opt').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function getOptVal(id) {
+  const el = document.querySelector(`#${id} .opt.on`);
+  return el ? Number(el.dataset.val) : 0;
+}
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function syncUI() {
+  const s1 = G.scores[0], s2 = G.scores[1];
+  const pv = pFmt(G.passes);
+
+  ['g','q'].forEach(p => {
+    const qEl = document.getElementById(`${p}-q`);
+    const pEl = document.getElementById(`${p}-p`);
+    const s1n = document.getElementById(`${p}-s1n`);
+    const s1v = document.getElementById(`${p}-s1v`);
+    const s2n = document.getElementById(`${p}-s2n`);
+    const s2v = document.getElementById(`${p}-s2v`);
+    if (qEl) qEl.textContent = G.total;
+    if (pEl) pEl.textContent = pv;
+    if (s1n) s1n.textContent = G.p1;
+    if (s1v) s1v.textContent = s1;
+    if (s2n) s2n.textContent = G.p2;
+    if (s2v) s2v.textContent = s2;
+  });
+
+  document.getElementById('g-name').textContent = spinner();
+
+  const pb = document.getElementById('passBtn');
+  if (pb) {
+    pb.disabled = G.passes === 0;
+    pb.textContent = G.passes === 0 ? 'No passes' : `😅 Pass (${pv})`;
+  }
+}
+
+/* ── Canvas wheel ────────────────────────────────── */
+const cvs = document.getElementById('wc');
+const ctx = cvs.getContext('2d');
+let wAngle = 0, spinning = false;
+
+function sizeCanvas() {
+  const sz = Math.min(280, window.innerWidth - 48);
+  cvs.width = sz; cvs.height = sz;
+  cvs.style.width = sz+'px'; cvs.style.height = sz+'px';
+}
+
+function drawWheel() {
+  const sz=cvs.width, cx=sz/2, cy=sz/2, R=sz/2-5, hr=22;
+  ctx.clearRect(0,0,sz,sz);
+  CATS.forEach((c,i) => {
+    const a0=wAngle+i*Math.PI/2, a1=wAngle+(i+1)*Math.PI/2, am=wAngle+(i+.5)*Math.PI/2;
+    const g=ctx.createRadialGradient(cx,cy,hr,cx,cy,R);
+    g.addColorStop(0,c.light); g.addColorStop(1,c.color);
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,R,a0,a1); ctx.closePath();
+    ctx.fillStyle=g; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(a0)*R, cy+Math.sin(a0)*R);
+    ctx.strokeStyle='rgba(11,11,28,.85)'; ctx.lineWidth=3; ctx.stroke();
+    const ed=R*.63;
+    ctx.font=`${sz*.095}px serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(c.emoji, cx+Math.cos(am)*ed, cy+Math.sin(am)*ed);
+  });
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.strokeStyle='rgba(255,255,255,.1)'; ctx.lineWidth=4; ctx.stroke();
+  const hg=ctx.createRadialGradient(cx,cy,0,cx,cy,hr);
+  hg.addColorStop(0,'#1b1b36'); hg.addColorStop(1,'#0b0b1c');
+  ctx.beginPath(); ctx.arc(cx,cy,hr,0,Math.PI*2);
+  ctx.fillStyle=hg; ctx.fill();
+  ctx.strokeStyle='rgba(242,193,78,.35)'; ctx.lineWidth=2; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,5,0,Math.PI*2);
+  ctx.fillStyle='#f2c14e'; ctx.fill();
+}
+
+function winnerIdx() {
+  const a=((3*Math.PI/2-wAngle)%(Math.PI*2)+Math.PI*2)%(Math.PI*2);
+  return Math.floor(a/(Math.PI/2))%4;
+}
+
+let flipTimer;
+function spin() {
+  if (spinning) return;
+  spinning = true;
+  document.getElementById('spinBtn').disabled = true;
+  cvs.classList.add('spinning');
+  const delta = (5+Math.random()*5)*Math.PI*2 + Math.random()*Math.PI*2;
+  const dur   = 3500 + Math.random()*1500;
+  const t0 = performance.now(), a0 = wAngle;
+  (function tick(now) {
+    const t = Math.min((now-t0)/dur, 1);
+    wAngle = a0 + delta*(1-Math.pow(1-t,5));
+    drawWheel();
+    if (t < 1) { requestAnimationFrame(tick); return; }
+    wAngle = (a0+delta)%(Math.PI*2);
+    spinning = false;
+    cvs.classList.remove('spinning');
+    document.getElementById('spinBtn').disabled = false;
+    setTimeout(revealQ, 300);
+  })(t0);
+}
+
+/* ── Timer ───────────────────────────────────────── */
+let timerInterval;
+
+function startTimer() {
+  const secs = G.timerSecs;
+  if (!secs) return;
+  stopTimer();
+
+  const ring = document.getElementById('tRing');
+  const num  = document.getElementById('timerNum');
+  const circ = 2 * Math.PI * 26;
+
+  ring.style.stroke = 'var(--gold)';
+  ring.style.strokeDashoffset = '0';
+  num.style.color = 'var(--gold)';
+  num.textContent = secs;
+
+  let remaining = secs;
+
+  timerInterval = setInterval(() => {
+    remaining--;
+    num.textContent = remaining;
+    ring.style.strokeDashoffset = circ * (1 - remaining/secs);
+
+    if (remaining <= 5) {
+      ring.style.stroke = 'var(--red-l)';
+      num.style.color   = 'var(--red-l)';
+    } else if (remaining <= Math.ceil(secs * 0.35)) {
+      ring.style.stroke = 'var(--orange-l)';
+      num.style.color   = 'var(--orange-l)';
+    }
+
+    if (remaining <= 0) { stopTimer(); doneQ(); }
+  }, 1000);
+}
+
+function stopTimer() { clearInterval(timerInterval); }
+
+/* ── Question flow ───────────────────────────────── */
+function revealQ() {
+  const cat = CATS[winnerIdx()];
+  const qStr = nextQ(cat.id);
+  G.total++;
+
+  const badge = document.getElementById('catBadge');
+  badge.style.background = `linear-gradient(135deg,${cat.color},${cat.light})`;
+  document.getElementById('catEmoji').textContent = cat.emoji;
+  document.getElementById('catName').textContent  = cat.label;
+  document.getElementById('qNum').textContent     = `QUESTION ${G.total}`;
+  document.getElementById('qTxt').textContent     = qStr;
+  document.getElementById('qWho').textContent     = answerer();
+
+  const tw = document.getElementById('timerWrap');
+  tw.hidden = G.timerSecs === 0;
+
+  syncUI();
+  show('s-question');
+
+  const fc = document.getElementById('fc');
+  fc.classList.remove('revealed');
+  clearTimeout(flipTimer);
+  flipTimer = setTimeout(() => {
+    fc.classList.add('revealed');
+    if (G.timerSecs > 0) setTimeout(startTimer, 800);
+  }, 1100);
+}
+
+function passQ() {
+  if (G.passes === 0) return;
+  clearTimeout(flipTimer);
+  stopTimer();
+  if (G.passes > 0) G.passes--;
+  G.total = Math.max(0, G.total - 1);
+  syncUI();
+  show('s-game');
+}
+
+function doneQ() {
+  clearTimeout(flipTimer);
+  stopTimer();
+  G.scores[answererIdx()]++;
+  G.turn = 1 - G.turn;
+  syncUI();
+  show('s-game');
+}
+
+/* ── Game lifecycle ──────────────────────────────── */
+function startGame() {
+  G.p1       = document.getElementById('p1').value.trim() || 'Em';
+  G.p2       = document.getElementById('p2').value.trim() || 'Za';
+  G.timerSecs = getOptVal('timerOpts');
+  G.passLimit = getOptVal('passOpts');
+  G.passes   = G.passLimit;
+  G.scores   = [0, 0];
+  G.total    = 0;
+  G.turn     = 0;
+  initPools();
+
+  document.getElementById('legend').innerHTML = CATS.map(c => `
+    <div class="leg-item">
+      <div class="leg-dot" style="background:${c.light}"></div>
+      ${c.emoji} ${c.label}
+    </div>`).join('');
+
+  syncUI();
+  show('s-game');
+  sizeCanvas();
+  drawWheel();
+}
+
+function endGame() {
+  const s1 = G.scores[0], s2 = G.scores[1];
+  document.getElementById('ef-p1').textContent = G.p1;
+  document.getElementById('ef-p2').textContent = G.p2;
+  document.getElementById('ef-s1').textContent = s1;
+  document.getElementById('ef-s2').textContent = s2;
+  document.getElementById('endQs').textContent = `${G.total} question${G.total!==1?'s':''} answered`;
+
+  let emoji = '🏆', msg;
+  if (s1 === s2) { emoji = '💛'; msg = "It's a tie!\nYou both win."; }
+  else if (s1 > s2) msg = `${G.p1} wins! 🎉`;
+  else              msg = `${G.p2} wins! 🎉`;
+
+  document.getElementById('endEmoji').textContent = emoji;
+  document.getElementById('endMsg').textContent   = msg;
+  show('s-end');
+}
+
+/* ── Event listeners ─────────────────────────────── */
+cvs.addEventListener('click', () => { if (!spinning) spin(); });
+document.getElementById('fc').addEventListener('click', () => {
+  document.getElementById('fc').classList.add('revealed');
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('s-welcome').classList.contains('active')) startGame();
+});
+
+/* ── Init ────────────────────────────────────────── */
+sizeCanvas();
+drawWheel();
+</script>
